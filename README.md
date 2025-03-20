@@ -20,7 +20,7 @@ Perfect for extracting meaningful screenshots from silent video demos, tutorials
 ## Installation
 1. Clone this repository:
    ```bash
-   git clone https://github.com/your-username/static-keyframe-extractor.git
+   git clone https://github.com/TMMSantos/static-keyframe-extractor.git
    cd static-keyframe-extractor
    python -m venv keyframes_env
    ```
@@ -68,13 +68,4 @@ Feel free to submit issues or pull requests if you have suggestions or improveme
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-```text
-
-### Notas:
-- Substitua `your-username` no comando `git clone` pelo seu nome de usuário do GitHub.
-- Se quiser adicionar um arquivo `LICENSE`, o MIT é uma escolha comum e simples; você pode gerá-lo facilmente online ou pelo próprio GitHub ao criar o repositório.
-- O README inclui instruções práticas, exemplos e uma seção para personalização, tornando-o útil tanto para você quanto para outros usuários.
-
-É só copiar e colar no seu `README.md`! Se precisar de ajustes, como adicionar imagens ou mais detalhes, me avise.
 ```
