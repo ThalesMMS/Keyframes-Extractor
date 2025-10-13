@@ -1,70 +1,85 @@
 # Static Keyframe Extractor
 
-A Python tool designed to extract unique static keyframes from videos, focusing on stable scenes rather than transitions. This is particularly useful for analyzing screen recordings, such as iOS app demonstrations, by capturing representative frames of distinct application states. Built with OpenCV and NumPy.
+A Python tool that extracts representative keyframes from stable scenes in a video. It is especially useful for screen recordings or UI walkthroughs where each stable view should be captured only once. The project is built with OpenCV and NumPy and can be used as a command-line utility or as a library.
 
 ## Features
-- Detects periods of frame stability to identify key static scenes.
-- Configurable parameters:
-  - `diff_threshold`: Sensitivity to frame differences.
-  - `stability_frames`: Minimum number of consecutive stable frames required.
-- Saves keyframes as JPG images in a specified output folder.
-
-## Use Case
-Perfect for extracting meaningful screenshots from silent video demos, tutorials, or UI walkthroughs, while ignoring rapid transitions.
+- Detects periods of frame stability to identify unique scenes.
+- Configurable detection parameters (`diff_threshold`, `stability_frames`, `start_index`).
+- Saves keyframes as JPG files and reports frame index and timestamp metadata.
+- Packaged structure with reusable Python API and CLI entry point.
 
 ## Requirements
-- Python 3.x
-- OpenCV (`opencv-python`)
-- NumPy
+- Python 3.9 or newer.
+- OpenCV (`opencv-python`) and NumPy (installed automatically through the package metadata).
 
 ## Installation
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/TMMSantos/static-keyframe-extractor.git
-   cd static-keyframe-extractor
-   python -m venv keyframes_env
-   ```
+```bash
+git clone https://github.com/TMMSantos/static-keyframe-extractor.git
+cd static-keyframe-extractor
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows use: .venv\Scripts\activate
+pip install -e .
+```
 
-# Windows
-keyframes_env\Scripts\activate
-# Linux/Mac
-source keyframes_env/bin/activate
-
-2.  Install dependencies:
-    
-    bash
-    
-    CollapseWrapCopy
-    
-    `pip install opencv-python numpy`
-    
+If you prefer not to install the package in editable mode, you can instead run `pip install -r requirements.txt`.
 
 ## Usage
 
-1.  Update the video\_path and output\_folder variables in extract\_static\_keyframes.py with your video file path and desired output directory.
-2.  Run the script:
-    
-    bash
-    
-    CollapseWrapCopy
-    
-    `python extract_static_keyframes.py`
-    
-3.  Check the output folder for extracted keyframes.
+### Command line
+Run the extractor with the `extract-static-keyframes` command (installed through the package) or with `python -m static_keyframe_extractor.cli`:
 
-## Customization
+```bash
+extract-static-keyframes input.mp4 keyframes_out \
+  --diff-threshold 10 \
+  --stability-frames 20 \
+  --start-index 100
+```
 
-*   **diff\_threshold**: Lower values (e.g., 5) increase sensitivity to small changes; higher values (e.g., 15) reduce it.
-*   **stability\_frames**: Increase (e.g., 30) for longer stable periods; decrease (e.g., 10) for shorter ones.
+Parameters:
+- `video_path`: path to the video you want to analyse.
+- `output_folder`: folder where keyframes will be written (created automatically if missing).
+- `--diff-threshold`: lower values make the detector more sensitive to small changes (default `12.0`).
+- `--stability-frames`: number of consecutive frames under the threshold before saving a keyframe (default `15`).
+- `--start-index`: first index used in the output filenames (default `0`).
 
-## Example
+The command prints each saved keyframe along with the frame index and an approximate timestamp.
 
-For a 30 FPS video, setting stability\_frames=15 requires half a second of stability to save a keyframe. Adjust based on your video's frame rate and content.
+You can also invoke the compatibility script directly:
+
+```bash
+python extract_static_keyframes.py input.mp4 keyframes_out
+```
+
+### Python API
+
+```python
+from pathlib import Path
+from static_keyframe_extractor import extract_static_keyframes
+
+result = extract_static_keyframes(
+    Path("input.mp4"),
+    Path("keyframes_out"),
+    diff_threshold=10.0,
+    stability_frames=20,
+)
+
+for keyframe in result.keyframes:
+    print(f"{keyframe.path} at frame {keyframe.frame_index} ({keyframe.timestamp:.2f}s)")
+```
+
+The returned `ExtractionResult` also reports the total number of processed frames and the video FPS (if available).
+
+## Tips
+- For high-motion videos, increase `diff_threshold` or `stability_frames` to avoid noise.
+- For very static footage, lower the threshold or the required stable frame count to capture shorter transitions.
+
+## Repository layout
+- `src/static_keyframe_extractor/`: package with the extractor implementation and CLI.
+- `extract_static_keyframes.py`: convenience wrapper to call the CLI without installation.
+- `requirements.txt` & `pyproject.toml`: dependency and packaging metadata.
 
 ## Contributing
-
-Feel free to submit issues or pull requests if you have suggestions or improvements!
+Feel free to open issues or submit pull requests with improvements or new detection strategies.
 
 ## License
-
-This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt) file for details.
+This project is licensed under the MIT License. See [LICENSE.txt](LICENSE.txt) for details.
