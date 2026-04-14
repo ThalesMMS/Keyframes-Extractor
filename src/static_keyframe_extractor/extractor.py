@@ -28,6 +28,27 @@ class ExtractionResult:
     fps: Optional[float]
 
 
+def _write_keyframe(
+    frame: np.ndarray,
+    output_folder: Path,
+    index: int,
+    frame_index: int,
+    fps: Optional[float],
+) -> Keyframe:
+    """Persist a frame as a keyframe and return its metadata."""
+
+    output_path = output_folder / f"keyframe_{index:06d}.jpg"
+    if not cv2.imwrite(str(output_path), frame):
+        raise ValueError(f"Failed to write keyframe to {output_path}")
+
+    timestamp = (frame_index / fps) if fps else None
+    return Keyframe(
+        path=output_path,
+        frame_index=frame_index,
+        timestamp=timestamp,
+    )
+
+
 def extract_static_keyframes(
     video_path: Path,
     output_folder: Path,
@@ -79,7 +100,6 @@ def extract_static_keyframes(
     frame_index = -1
     next_index = start_index
     prev_gray: Optional[np.ndarray] = None
-    last_stable_frame: Optional[np.ndarray] = None
 
     try:
         while True:
@@ -97,25 +117,21 @@ def extract_static_keyframes(
             if prev_gray is None:
                 prev_gray = gray
                 stable_count = 1
-                last_stable_frame = frame
                 continue
 
             diff_value = float(cv2.absdiff(gray, prev_gray).mean())
 
             if diff_value < diff_threshold:
                 stable_count += 1
-                last_stable_frame = frame
 
                 if stable_count >= stability_frames and not saved_in_sequence:
-                    output_path = output_folder / f"keyframe_{next_index:06d}.jpg"
-                    if not cv2.imwrite(str(output_path), last_stable_frame):
-                        raise ValueError(f"Failed to write keyframe to {output_path}")
-                    timestamp = (frame_index / fps) if fps else None
                     keyframes.append(
-                        Keyframe(
-                            path=output_path,
-                            frame_index=frame_index,
-                            timestamp=timestamp,
+                        _write_keyframe(
+                            frame,
+                            output_folder,
+                            next_index,
+                            frame_index,
+                            fps,
                         )
                     )
                     saved_in_sequence = True
@@ -123,7 +139,6 @@ def extract_static_keyframes(
             else:
                 stable_count = 1
                 saved_in_sequence = False
-                last_stable_frame = frame
 
             prev_gray = gray
     finally:

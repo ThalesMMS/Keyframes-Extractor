@@ -14,19 +14,26 @@ A Python tool that extracts representative keyframes from stable scenes in a vid
 
 ## Installation
 ```bash
-git clone https://github.com/TMMSantos/static-keyframe-extractor.git
-cd static-keyframe-extractor
+git clone https://github.com/ThalesMMS/Keyframes-Extractor.git
+cd Keyframes-Extractor
 python3 -m venv .venv
 source .venv/bin/activate  # On Windows use: .venv\Scripts\activate
 pip install -e .
 ```
 
-If you prefer not to install the package in editable mode, you can instead run `pip install -r requirements.txt`.
+That install path enables both the `extract-static-keyframes` command and `python -m static_keyframe_extractor.cli`.
+
+If you only want to run from a source checkout without installing the package, install the runtime dependencies and use `PYTHONPATH=src` when calling the wrapper script:
+
+```bash
+pip install -r requirements.txt
+PYTHONPATH=src python extract_static_keyframes.py input.mp4 keyframes_out
+```
 
 ## Usage
 
 ### Command line
-Run the extractor with the `extract-static-keyframes` command (installed through the package) or with `python -m static_keyframe_extractor.cli`:
+After `pip install -e .`, run the extractor with the `extract-static-keyframes` command or with `python -m static_keyframe_extractor.cli`:
 
 ```bash
 extract-static-keyframes input.mp4 keyframes_out \
@@ -44,10 +51,10 @@ Parameters:
 
 The command prints each saved keyframe along with the frame index and an approximate timestamp.
 
-You can also invoke the compatibility script directly:
+From the repository root, you can also use the compatibility script if you either installed the package first or provide `PYTHONPATH=src`:
 
 ```bash
-python extract_static_keyframes.py input.mp4 keyframes_out
+PYTHONPATH=src python extract_static_keyframes.py input.mp4 keyframes_out
 ```
 
 ### Python API
